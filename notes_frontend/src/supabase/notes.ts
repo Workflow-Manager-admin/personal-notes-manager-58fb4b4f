@@ -43,8 +43,22 @@ export async function createNote(content: string): Promise<Note> {
       body: JSON.stringify({ content }),
     }
   );
-  if (!res.ok) throw new Error("Failed to create note");
-  const data = await res.json();
+  // Surface more information about API errors
+  const data = await res.json().catch(() => undefined);
+  if (!res.ok) {
+    // Supabase REST responses usually look like { error: "...", ... }
+    const errMsg =
+      (data && data.message) ||
+      (data && data.error) ||
+      JSON.stringify(data) ||
+      "Failed to create note (no response details)";
+    throw new Error(`Failed to create note: ${errMsg}`);
+  }
+  if (!Array.isArray(data) || !data[0]) {
+    throw new Error(
+      `Supabase response did not return the new note as expected. Raw response: ${JSON.stringify(data)}`
+    );
+  }
   return data[0];
 }
 
