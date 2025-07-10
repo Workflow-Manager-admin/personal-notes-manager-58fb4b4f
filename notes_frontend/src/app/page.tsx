@@ -62,7 +62,8 @@ export default function NotesApp() {
     setSaveLoading(true);
     setError(null);
     try {
-      const note = await createNote("");
+      // Always pass a default non-empty title for a new note
+      const note = await createNote("", "Untitled Note");
       setNotes((prev) => [note, ...prev]);
       setSelectedId(note.id);
       setEditingNote({ ...note });
@@ -186,9 +187,9 @@ export default function NotesApp() {
                       : {}
                   }
                   onClick={() => selectNote(n.id)}
-                  title={n.content ? n.content.slice(0, 32) : "Empty note"}
+                  title={n.title || "Untitled Note"}
                 >
-                  {(n.content || "Untitled").trim().split("\n").slice(0, 2).join(" ").slice(0, 38) || <span className="italic text-gray-400">Empty</span>}
+                  {(n.title || "Untitled Note").slice(0, 38)}
                 </li>
               ))}
             </ul>

@@ -1,5 +1,6 @@
 export interface Note {
   id: string;
+  title: string;
   content: string;
   created_at: string;
 }
@@ -27,9 +28,14 @@ export async function getNotes(): Promise<Note[]> {
 
 /**
  * PUBLIC_INTERFACE
- * Create a new note with given content.
+ * Create a new note with given title and content.
  */
-export async function createNote(content: string): Promise<Note> {
+export async function createNote(
+  content: string,
+  title?: string
+): Promise<Note> {
+  const nonNullTitle =
+    (typeof title === "string" && title.trim() !== "" ? title : "Untitled Note");
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/notes`,
     {
@@ -38,9 +44,9 @@ export async function createNote(content: string): Promise<Note> {
         apikey: process.env.NEXT_PUBLIC_SUPABASE_KEY!,
         Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_KEY!}`,
         "Content-Type": "application/json",
-        Prefer: "return=representation",
+        Prefer: "return=representation"
       },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ title: nonNullTitle, content }),
     }
   );
   // Surface more information about API errors
